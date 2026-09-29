@@ -1,0 +1,562 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>CALCI | Stack Calculator</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+:root {
+    --bg: #0b0d16;
+    --panel: #141827;
+    --button: #20263a;
+    --button-hover: #303954;
+    --purple: #8b5cf6;
+    --text: #f5f3ff;
+    --muted: #929bb4;
+    --border: rgba(255,255,255,.08);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    min-height: 100vh;
+    background:
+        radial-gradient(ellipse at 15% 10%, #28204b 0%, transparent 40%),
+        radial-gradient(ellipse at 90% 90%, #162b42 0%, transparent 40%),
+        var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 25px;
+}
+
+.app {
+    width: 100%;
+    max-width: 1050px;
+    display: grid;
+    grid-template-columns: minmax(320px, 430px) minmax(280px, 1fr);
+    gap: 25px;
+    align-items: start;
+}
+
+.calculator, .side-panel {
+    background: rgba(20,24,39,.94);
+    border: 1px solid var(--border);
+    border-radius: 25px;
+    padding: 25px;
+    box-shadow: 0 25px 80px rgba(0,0,0,.35);
+    backdrop-filter: blur(20px);
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.logo {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 27px;
+    font-weight: 700;
+    letter-spacing: -1px;
+}
+
+.logo span {
+    color: var(--purple);
+}
+
+.status {
+    font-size: 10px;
+    letter-spacing: 1px;
+    color: #86efac;
+    background: rgba(34,197,94,.1);
+    border: 1px solid rgba(34,197,94,.2);
+    padding: 8px 11px;
+    border-radius: 30px;
+}
+
+.display {
+    min-height: 145px;
+    background: #0e1220;
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    overflow: hidden;
+}
+
+.display-label {
+    color: var(--muted);
+    font-size: 11px;
+    letter-spacing: 2px;
+}
+
+#expression {
+    width: 100%;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: white;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 29px;
+    text-align: right;
+    margin: 15px 0;
+}
+
+#result {
+    color: #a78bfa;
+    font-size: 35px;
+    font-family: 'Space Grotesk', sans-serif;
+    text-align: right;
+    overflow-wrap: anywhere;
+}
+
+.keypad {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 11px;
+}
+
+button {
+    border: 1px solid transparent;
+    cursor: pointer;
+    color: white;
+    font-family: inherit;
+    font-size: 19px;
+    font-weight: 600;
+    border-radius: 14px;
+    min-height: 65px;
+    background: var(--button);
+    transition: .18s ease;
+}
+
+button:hover {
+    background: var(--button-hover);
+    transform: translateY(-2px);
+}
+
+button:active {
+    transform: scale(.96);
+}
+
+button.function {
+    color: #c4b5fd;
+    background: #292342;
+}
+button.function {
+    color: #c4b5fd;
+    background: linear-gradient(145deg, #302748, #252039);
+    border: 1px solid rgba(167, 139, 250, 0.12);
+}
+
+button.function:hover {
+    background: linear-gradient(145deg, #49376c, #35284f);
+    box-shadow: 0 5px 18px rgba(139, 92, 246, 0.18);
+}
+
+#angleMode {
+    color: #86efac;
+    background: #18352d;
+}
+button.operator {
+    color: #c4b5fd;
+    background: #292342;
+}
+
+button.equals {
+    background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+    box-shadow: 0 8px 25px rgba(139,92,246,.25);
+}
+
+button.equals:hover {
+    background: linear-gradient(135deg, #a78bfa, #7c3aed);
+}
+
+.side-panel {
+    min-height: 500px;
+}
+
+.panel-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.panel-heading h2 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 19px;
+}
+
+.clear-btn {
+    min-height: auto;
+    padding: 8px 12px;
+    font-size: 12px;
+    color: #fca5a5;
+    background: #35202d;
+}
+
+.section-label {
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 1.5px;
+    margin: 22px 0 12px;
+}
+
+.postfix {
+    background: #0e1220;
+    padding: 15px;
+    border-radius: 12px;
+    color: #c4b5fd;
+    overflow-wrap: anywhere;
+    font-family: monospace;
+    font-size: 14px;
+    min-height: 45px;
+}
+
+.stack {
+    display: flex;
+    flex-direction: column-reverse;
+    align-items: center;
+    gap: 7px;
+    min-height: 120px;
+    padding: 15px;
+    background: #0e1220;
+    border-radius: 12px;
+    border-bottom: 3px solid #5b4b87;
+}
+
+.stack-item {
+    width: 75%;
+    padding: 12px;
+    border-radius: 9px;
+    text-align: center;
+    background: linear-gradient(135deg, #6d4bc3, #43317e);
+    font-weight: 600;
+    animation: appear .25s ease;
+}
+
+.stack-empty {
+    color: var(--muted);
+    font-size: 13px;
+    margin: auto;
+}
+
+@keyframes appear {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.steps {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    max-height: 190px;
+    overflow-y: auto;
+}
+
+.step {
+    background: #20263a;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 11px;
+    font-size: 12px;
+    color: #d6d9e5;
+}
+
+.step strong {
+    color: #c4b5fd;
+}
+
+.message {
+    color: #fca5a5;
+    font-size: 13px;
+    min-height: 20px;
+    margin-top: 12px;
+}
+
+.footer {
+    text-align: center;
+    color: var(--muted);
+    font-size: 11px;
+    margin-top: 20px;
+}
+
+@media(max-width: 750px) {
+    body {
+        padding: 14px;
+        align-items: flex-start;
+    }
+
+    .app {
+        grid-template-columns: 1fr;
+        max-width: 440px;
+    }
+
+    .calculator, .side-panel {
+        padding: 19px;
+        border-radius: 20px;
+    }
+
+    button {
+        min-height: 59px;
+    }
+
+    .side-panel {
+        min-height: auto;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+    <main class="calculator">
+
+        <header class="header">
+            <div class="logo">CAL<span>CI.</span></div>
+            <div class="status">● STACK ENGINE ONLINE</div>
+        </header>
+
+        <section class="display">
+            <div class="display-label">EXPRESSION</div>
+
+            <input
+                id="expression"
+                type="text"
+                placeholder="0"
+                autocomplete="off"
+                spellcheck="false"
+            >
+
+            <div id="result">0</div>
+        </section>
+
+        
+
+<section class="keypad">
+
+    <!-- Scientific functions -->
+    <button class="function" onclick="append('sin(')">sin</button>
+    <button class="function" onclick="append('cos(')">cos</button>
+    <button class="function" onclick="append('tan(')">tan</button>
+    <button class="function" id="angleMode" onclick="toggleAngleMode()">DEG</button>
+
+    <!-- Brackets and controls -->
+    <button class="function" onclick="clearAll()">AC</button>
+    <button class="function" onclick="deleteLast()">DEL</button>
+    <button class="function" onclick="append('(')">(</button>
+    <button class="function" onclick="append(')')">)</button>
+
+    <button class="function" onclick="append('[')">[</button>
+    <button class="function" onclick="append(']')">]</button>
+    <button class="function" onclick="append('{')">{</button>
+    <button class="function" onclick="append('}')">}</button>
+
+    <!-- Numbers -->
+    <button onclick="append('7')">7</button>
+    <button onclick="append('8')">8</button>
+    <button onclick="append('9')">9</button>
+    <button class="operator" onclick="append('/')">÷</button>
+
+    <button onclick="append('4')">4</button>
+    <button onclick="append('5')">5</button>
+    <button onclick="append('6')">6</button>
+    <button class="operator" onclick="append('*')">×</button>
+
+    <button onclick="append('1')">1</button>
+    <button onclick="append('2')">2</button>
+    <button onclick="append('3')">3</button>
+    <button class="operator" onclick="append('-')">−</button>
+
+    <button onclick="append('0')">0</button>
+    <button onclick="append('.')">.</button>
+    <button class="equals" onclick="calculate()">=</button>
+    <button class="operator" onclick="append('+')">+</button>
+
+</section>
+
+
+
+        <div id="message" class="message"></div>
+
+        <div class="footer">
+            Powered by Python · FastAPI · Stack Data Structure
+        </div>
+
+    </main>
+
+    <aside class="side-panel">
+
+        <div class="panel-heading">
+            <h2>Evaluation Engine</h2>
+            <button class="clear-btn" onclick="clearAll()">RESET</button>
+        </div>
+
+        <div class="section-label">POSTFIX EXPRESSION</div>
+        <div id="postfix" class="postfix">Waiting for expression...</div>
+
+        <div class="section-label">STACK VISUALIZATION</div>
+        <div id="stack" class="stack">
+            <div class="stack-empty">Stack is empty</div>
+        </div>
+
+        <div class="section-label">OPERATION TRACE</div>
+        <div id="steps" class="steps">
+            <div class="step">Enter an expression and press =</div>
+        </div>
+
+    </aside>
+
+</div>
+
+<script>
+const expressionInput = document.getElementById("expression");
+let angleMode = "DEG";
+
+function toggleAngleMode() {
+    angleMode = angleMode === "DEG" ? "RAD" : "DEG";
+
+    document.getElementById("angleMode").textContent = angleMode;
+
+    messageDisplay.textContent = `Angle mode: ${angleMode}`;
+}
+const resultDisplay = document.getElementById("result");
+const postfixDisplay = document.getElementById("postfix");
+const stackDisplay = document.getElementById("stack");
+const stepsDisplay = document.getElementById("steps");
+const messageDisplay = document.getElementById("message");
+
+function append(value) {
+    expressionInput.value += value;
+    expressionInput.focus();
+    messageDisplay.textContent = "";
+}
+
+function clearAll() {
+    expressionInput.value = "";
+    resultDisplay.textContent = "0";
+    postfixDisplay.textContent = "Waiting for expression...";
+    stackDisplay.innerHTML =
+        '<div class="stack-empty">Stack is empty</div>';
+    stepsDisplay.innerHTML =
+        '<div class="step">Enter an expression and press =</div>';
+    messageDisplay.textContent = "";
+    expressionInput.focus();
+}
+
+function deleteLast() {
+    expressionInput.value = expressionInput.value.slice(0, -1);
+    expressionInput.focus();
+}
+
+function renderStack(items) {
+    stackDisplay.innerHTML = "";
+
+    if (!items.length) {
+        stackDisplay.innerHTML =
+            '<div class="stack-empty">Stack is empty</div>';
+        return;
+    }
+
+    items.forEach(value => {
+        const element = document.createElement("div");
+        element.className = "stack-item";
+        element.textContent = value;
+        stackDisplay.appendChild(element);
+    });
+}
+
+async function calculate() {
+    const expression = expressionInput.value.trim();
+
+    if (!expression) {
+        messageDisplay.textContent = "Please enter an expression.";
+        return;
+    }
+
+    resultDisplay.textContent = "...";
+    messageDisplay.textContent = "";
+
+    try {
+        const response = await fetch("/calculate", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+    expression: expression,
+    angle_mode: angleMode
+})
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.detail || "Calculation failed");
+        }
+
+        resultDisplay.textContent = data.result;
+        postfixDisplay.textContent = data.postfix;
+
+        stepsDisplay.innerHTML = "";
+
+        data.steps.forEach((step, index) => {
+            const element = document.createElement("div");
+            element.className = "step";
+
+            const title = document.createElement("strong");
+            title.textContent = `${index + 1}. ${step.token} — `;
+
+            const description = document.createElement("span");
+            description.textContent =
+                `${step.operation} | Stack: [${step.stack.join(", ")}]`;
+
+            element.appendChild(title);
+            element.appendChild(description);
+            stepsDisplay.appendChild(element);
+        });
+
+        renderStack([data.result]);
+
+    } catch (error) {
+        resultDisplay.textContent = "Error";
+        messageDisplay.textContent = error.message;
+        postfixDisplay.textContent = "Unable to convert expression";
+        stackDisplay.innerHTML =
+            '<div class="stack-empty">No result</div>';
+        stepsDisplay.innerHTML =
+            '<div class="step">Check your expression and try again.</div>';
+    }
+}
+
+expressionInput.addEventListener("keydown", event => {
+    if (event.key === "Enter") {
+        calculate();
+    }
+
+    if (event.key === "Escape") {
+        clearAll();
+    }
+});
+</script>
+
+</body>
+</html>
